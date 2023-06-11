@@ -1,7 +1,6 @@
 import pygame
 import pygame.freetype 
 from Pawn import *
-from Game import *
 
 class Chessboard:
     def __init__(self):
@@ -55,9 +54,8 @@ class Chessboard:
         self.active = False
         self.text = ''
         self.clock = pygame.time.Clock()
-        self.game = ChessGame()
 
-    def printboard(self):
+    def printboard(self, game_state):
         self.screen.fill(self.white)
         for row in range(8):
             for col in range(8):
@@ -65,9 +63,9 @@ class Chessboard:
                 y = row * self.square_size
                 color = self.white if (row + col) % 2 == 0 else self.brown
                 pygame.draw.rect(self.screen, color, (x, y, self.square_size, self.square_size))
-                piece = self.starting_order.get((col, row))
+                piece = game_state[row][col].get_piece()
                 if piece:
-                    icon = self.icons.get(piece)
+                    icon = self.icons.get(piece.tag)
                     if icon:
                         icon = pygame.transform.scale(icon, (self.square_size, self.square_size))
                         self.screen.blit(icon, (x, y))
@@ -100,4 +98,6 @@ class Chessboard:
                     else:
                         self.text += event.unicode
         return True
-
+    
+    def update_board(self, new_state):
+        self.starting_order = new_state

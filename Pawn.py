@@ -1,8 +1,9 @@
 from Piece import *
 
 class Pawn(Piece):
-    def __init__(self, color, position, image):
+    def __init__(self, color, position, image,):
         super().__init__(color, position, image)
+        self.tag = 'P' if self.color == 'W' else 'p'
         self.first_move = True
 
     def legal_moves(self, board):

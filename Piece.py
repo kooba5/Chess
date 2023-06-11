@@ -11,3 +11,4 @@ class Piece:
 
     def legal_moves(self, board):
         pass
+    

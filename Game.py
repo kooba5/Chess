@@ -6,6 +6,7 @@ from Knight import *
 from Bishop import *
 from Queen import *
 from King import *
+from Board import *
 
 class ChessGame:
     def __init__(self):
@@ -57,13 +58,15 @@ class ChessGame:
         if start_square.get_piece().color != self.turn:
             print("You must move a piece of your own color.")
             return
-
-        end_square.place_piece(start_square.get_piece())
-        start_square.remove_piece()
-
-        self.turn = 'B' if self.turn == 'W' else 'W'         
-
-
-
-
         
+        legal_moves = start_square.get_piece().legal_moves(self.board) 
+        if end not in legal_moves: 
+            print('Invalid move')
+
+        piece = start_square.remove_piece()
+        end_square.place_piece(piece)
+
+        self.turn = 'B' if self.turn == 'W' else 'W'      
+   
+    def get_current_state(self):
+        return self.board
