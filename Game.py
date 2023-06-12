@@ -52,13 +52,12 @@ class ChessGame:
                 king = self.board[0][4].get_piece()
                 rook_file = 7 if text == 'O-O' else 0
                 rook = self.board[0][rook_file].get_piece()
-
-            if king.moved == True or rook.moved == True:
-                print('Invalid castling move.')
-                return               
             if king is None or rook is None:
                 print('Invalid castling move.')
-                return    
+                return              
+            if king.moved == True or rook.moved == True:
+                print('Invalid castling move - pieces already moved.')
+                return               
             if king.tag == 'K' and rook.tag != 'R':
                 print('Invalid castling move.')
                 return
@@ -66,7 +65,15 @@ class ChessGame:
                 print('Invalid castling move.')
                 return
             
-            self.castle(self.board, rook)
+            step = 1 if king.position[1] < rook.position[1] else -1
+            king_final_position = (king.position[0], king.position[1] + 2 * step)
+            king_final_position = (king_final_position[0], king_final_position[1] if text == 'O-O' else king_final_position[1] - step)
+
+            if self.king_in_check(self.turn) or any(self.is_square_under_attack(king.position[0], i, self.turn) for i in range(king.position[1] + step, king_final_position[1] + 1, step)):
+                print('Invalid castling move - would put your king in check.')
+                return
+            
+            self.castle(king, rook)
 
         if len(text) != 5 or text[2] != '-' or not text[0] in 'abcdefgh' or not text[3] in 'abcdefgh' or not text[1].isdigit() or not text[4].isdigit():
             print("Invalid move format. Use 'e2-e4'")
@@ -96,7 +103,7 @@ class ChessGame:
         piece = start_square.remove_piece()
         end_square.place_piece(piece)
 
-        if self.is_in_check(self.turn):
+        if self.king_in_check(self.turn):
             print('That move would put your king in check.')
             start_square.place_piece(piece)
             end_square.place_piece(old_end_piece)
@@ -109,7 +116,7 @@ class ChessGame:
     def get_current_state(self):
         return self.board
     
-    def is_in_check(self, color):
+    def king_in_check(self, color):
         king_tag = 'K' if color == 'W' else 'k'
 
         king_position = None
@@ -132,13 +139,22 @@ class ChessGame:
 
         return False    
     
+    def is_square_under_attack(self, row, col, color):
+        opposing_color = 'B' if color == 'W' else 'W'
+        for i in range(8):
+            for j in range(8):
+                piece = self.board[i][j].get_piece()
+                if piece and piece.color == opposing_color:
+                    if (row, col) in piece.legal_moves(self.board):
+                        return True
+        return False
+    
     def castle(self, king, rook):
         step = 1 if king.position[1] < rook.position[1] else -1
         for file in range(king.position[1] + step, rook.position[1], step):
             if self.board[king.position[0]][file].piece is not None:
                 print('Path not clear for castling.')
                 return
-
         if step == 1:
             new_king_position = (king.position[0], king.position[1] + 2)
             new_rook_position = (rook.position[0], rook.position[1] - 2)
@@ -151,5 +167,9 @@ class ChessGame:
         self.board[new_king_position[0]][new_king_position[1]].place_piece(king)
         self.board[new_rook_position[0]][new_rook_position[1]].place_piece(rook)
 
+        king.position = new_king_position  
+        rook.position = new_rook_position  
+
         king.moved = True
         rook.moved = True
+        self.turn = 'B' if self.turn == 'W' else 'W'
