@@ -108,6 +108,10 @@ class ChessGame:
             start_square.place_piece(piece)
             end_square.place_piece(old_end_piece)
             return        
+        piece = end_square.get_piece()
+        pawn_tag = 'P' if self.turn == 'W' else 'p'
+        if piece.tag == pawn_tag and piece.can_promote():
+            self.promote_pawn(end, piece.color)
         
         self.turn = 'B' if self.turn == 'W' else 'W'
         return
@@ -173,3 +177,8 @@ class ChessGame:
         king.moved = True
         rook.moved = True
         self.turn = 'B' if self.turn == 'W' else 'W'
+
+    def promote_pawn(self, position, color):
+        queen_image = pygame.image.load('PNG/W.queen.png') if color == 'W' else pygame.image.load('PNG/B.queen.png')
+        queen = Queen(color, position, queen_image)
+        self.board[position[0]][position[1]].place_piece(queen)

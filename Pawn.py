@@ -24,6 +24,13 @@ class Pawn(Piece):
 
         return moves
     
+    def can_promote(self):
+         if self.color == 'W' and self.position[0] == 0:
+             return True
+         if self.color == 'B' and self.position[0] == 7:
+             return True
+         return False
+
     def move(self, new_position):
         self.position - new_position
         self.first_move = False
