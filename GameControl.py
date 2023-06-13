@@ -34,14 +34,17 @@ class GameController:
                             new_state = self.game.move_piece(self.board.text) 
                             self.board.update_board(new_state)  
                             self.board.text = ''
+                            if self.game.game_over:
+                                running = False
                         elif event.key == pygame.K_BACKSPACE:
                             self.board.text = self.board.text[:-1]
                         else:
                             self.board.text += event.unicode
+                        
 
             game_state = self.game.get_current_state() 
             self.board.printboard(game_state) 
             pygame.display.flip()
             self.board.clock.tick(30)
-
+        print('Game over')
         pygame.quit()

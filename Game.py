@@ -11,27 +11,8 @@ from Board import *
 class ChessGame:
     def __init__(self):
         self.turn = 'W'
-        self.board = [[Square(x, y) for y in range(8)] for x in range(8)]
-        self.board[0][0].place_piece(Rook('B', (0,0), pygame.image.load('PNG/B.rook.png')))
-        self.board[0][1].place_piece(Knight('B', (0,1), pygame.image.load('PNG/B.knight.png')))
-        self.board[0][2].place_piece(Bishop('B', (0,2), pygame.image.load('PNG/B.bishop.png')))
-        self.board[0][3].place_piece(Queen('B', (0,3), pygame.image.load('PNG/B.queen.png')))
-        self.board[0][4].place_piece(King('B', (0,4), pygame.image.load('PNG/B.king.png')))
-        self.board[0][5].place_piece(Bishop('B', (0,5), pygame.image.load('PNG/B.bishop.png')))
-        self.board[0][6].place_piece(Knight('B', (0,6), pygame.image.load('PNG/B.knight.png')))
-        self.board[0][7].place_piece(Rook('B', (0,7), pygame.image.load('PNG/B.rook.png')))
-        for i in range(8):
-            self.board[1][i].place_piece(Pawn('B', (1, i), pygame.image.load('PNG/B.pawn.png')))
-        for i in range(8):
-            self.board[6][i].place_piece(Pawn('W', (6, i), pygame.image.load('PNG/W.pawn.png')))
-        self.board[7][0].place_piece(Rook('W', (7,0), pygame.image.load('PNG/W.rook.png')))
-        self.board[7][1].place_piece(Knight('W', (7,1), pygame.image.load('PNG/W.knight.png')))
-        self.board[7][2].place_piece(Bishop('W', (7,2), pygame.image.load('PNG/W.bishop.png')))
-        self.board[7][3].place_piece(Queen('W', (7,3), pygame.image.load('PNG/W.queen.png')))
-        self.board[7][4].place_piece(King('W', (7,4), pygame.image.load('PNG/W.king.png')))
-        self.board[7][5].place_piece(Bishop('W', (7,5), pygame.image.load('PNG/W.bishop.png')))
-        self.board[7][6].place_piece(Knight('W', (7,6), pygame.image.load('PNG/W.knight.png')))
-        self.board[7][7].place_piece(Rook('W', (7,7), pygame.image.load('PNG/W.rook.png')))
+        self.game_over = False
+        self.normal_pos()
 
     def parse_move(self, text):
         start_col = ord(text[0]) - ord('a')
@@ -112,11 +93,21 @@ class ChessGame:
         pawn_tag = 'P' if self.turn == 'W' else 'p'
         if piece.tag == pawn_tag and piece.can_promote():
             self.promote_pawn(end, piece.color)
-        
+
         self.turn = 'B' if self.turn == 'W' else 'W'
+
+        self.print_legal_moves()
+
+        winning_color = 'White' if self.turn == 'B' else 'Black'
+        if self.is_checkmate():
+            print(f"Checkmate! The player with {winning_color} pieces won!")
+            self.game_over = True
+        if self.is_stalemate():
+            print(f"Stalemate...Ooops")
+            self.game_over = True
+
         return
 
-   
     def get_current_state(self):
         return self.board
     
@@ -182,3 +173,105 @@ class ChessGame:
         queen_image = pygame.image.load('PNG/W.queen.png') if color == 'W' else pygame.image.load('PNG/B.queen.png')
         queen = Queen(color, position, queen_image)
         self.board[position[0]][position[1]].place_piece(queen)
+
+    def is_checkmate(self):
+        if not self.king_in_check(self.turn):
+            return False
+
+        for i in range(8):
+            for j in range(8):
+                piece = self.board[i][j].get_piece()
+                if piece is not None and piece.color == self.turn:
+                    for move in piece.legal_moves(self.board):
+                        start_square = self.board[i][j]
+                        end_square = self.board[move[0]][move[1]]
+                        
+                        old_start_piece = start_square.get_piece()
+                        old_end_piece = end_square.get_piece()
+                        
+                        piece_to_move = start_square.remove_piece()
+                        end_square.place_piece(piece_to_move)
+                        
+                        still_in_check = self.king_in_check(self.turn)
+                        
+                        start_square.place_piece(old_start_piece)
+                        end_square.place_piece(old_end_piece)
+                        
+                        if not still_in_check:
+                            return False 
+        return True
+    
+    def is_stalemate(self):
+        if self.king_in_check(self.turn):
+            return False
+
+        for i in range(8):
+            for j in range(8):
+                piece = self.board[i][j].get_piece()
+                if piece and piece.color == self.turn:
+                    original_position = piece.position
+                    for move in piece.legal_moves(self.board):
+                        captured_piece = self.board[move[0]][move[1]].get_piece()
+                        self.board[move[0]][move[1]].place_piece(self.board[original_position[0]][original_position[1]].remove_piece())
+                        piece.position = move
+                        if not self.king_in_check(self.turn):
+                            self.board[original_position[0]][original_position[1]].place_piece(self.board[move[0]][move[1]].remove_piece())
+                            piece.position = original_position
+                            if captured_piece:
+                                self.board[move[0]][move[1]].place_piece(captured_piece)
+                            return False
+                        self.board[original_position[0]][original_position[1]].place_piece(self.board[move[0]][move[1]].remove_piece())
+                        piece.position = original_position
+                        if captured_piece:
+                            self.board[move[0]][move[1]].place_piece(captured_piece)
+        return True
+
+    def setup_predefined_position(self):
+        
+        self.board = [[Square(x, y) for y in range(8)] for x in range(8)]
+        self.board[2][7].place_piece(Rook('B', (0,0), pygame.image.load('PNG/B.rook.png')))
+        self.board[1][7].place_piece(Queen('B', (0,3), pygame.image.load('PNG/B.queen.png')))
+        self.board[2][6].place_piece(King('B', (0,4), pygame.image.load('PNG/B.king.png')))
+        self.board[0][5].place_piece(Bishop('B', (0,5), pygame.image.load('PNG/B.bishop.png')))
+        self.board[0][6].place_piece(Knight('B', (0,6), pygame.image.load('PNG/B.knight.png')))
+        self.board[0][7].place_piece(Rook('B', (0,7), pygame.image.load('PNG/B.rook.png')))
+        self.board[1][4].place_piece(Pawn('B', (0,7), pygame.image.load('PNG/B.pawn.png')))
+        self.board[1][6].place_piece(Pawn('B', (0,7), pygame.image.load('PNG/B.pawn.png')))
+        self.board[2][5].place_piece(Pawn('B', (0,7), pygame.image.load('PNG/B.pawn.png')))
+        self.board[3][7].place_piece(Pawn('B', (0,7), pygame.image.load('PNG/B.pawn.png')))
+
+        self.board[0][2].place_piece(Queen('W', (7,3), pygame.image.load('PNG/W.queen.png')))
+        self.board[4][7].place_piece(Pawn('W', (0,7), pygame.image.load('PNG/W.pawn.png')))
+
+    def normal_pos(self):
+        self.board = [[Square(x, y) for y in range(8)] for x in range(8)]
+        self.board[0][0].place_piece(Rook('B', (0,0), pygame.image.load('PNG/B.rook.png')))
+        self.board[0][1].place_piece(Knight('B', (0,1), pygame.image.load('PNG/B.knight.png')))
+        self.board[0][2].place_piece(Bishop('B', (0,2), pygame.image.load('PNG/B.bishop.png')))
+        self.board[0][3].place_piece(Queen('B', (0,3), pygame.image.load('PNG/B.queen.png')))
+        self.board[0][4].place_piece(King('B', (0,4), pygame.image.load('PNG/B.king.png')))
+        self.board[0][5].place_piece(Bishop('B', (0,5), pygame.image.load('PNG/B.bishop.png')))
+        self.board[0][6].place_piece(Knight('B', (0,6), pygame.image.load('PNG/B.knight.png')))
+        self.board[0][7].place_piece(Rook('B', (0,7), pygame.image.load('PNG/B.rook.png')))
+        for i in range(8):
+            self.board[1][i].place_piece(Pawn('B', (1, i), pygame.image.load('PNG/B.pawn.png')))
+        for i in range(8):
+            self.board[6][i].place_piece(Pawn('W', (6, i), pygame.image.load('PNG/W.pawn.png')))
+        self.board[7][0].place_piece(Rook('W', (7,0), pygame.image.load('PNG/W.rook.png')))
+        self.board[7][1].place_piece(Knight('W', (7,1), pygame.image.load('PNG/W.knight.png')))
+        self.board[7][2].place_piece(Bishop('W', (7,2), pygame.image.load('PNG/W.bishop.png')))
+        self.board[7][3].place_piece(Queen('W', (7,3), pygame.image.load('PNG/W.queen.png')))
+        self.board[7][4].place_piece(King('W', (7,4), pygame.image.load('PNG/W.king.png')))
+        self.board[7][5].place_piece(Bishop('W', (7,5), pygame.image.load('PNG/W.bishop.png')))
+        self.board[7][6].place_piece(Knight('W', (7,6), pygame.image.load('PNG/W.knight.png')))
+        self.board[7][7].place_piece(Rook('W', (7,7), pygame.image.load('PNG/W.rook.png')))
+
+    def print_legal_moves(self):
+        for i in range(8):
+            for j in range(8):
+                piece = self.board[i][j].get_piece()
+                if piece is not None:
+                    print(f"Legal moves for {piece.color} {type(piece).__name__} at ({i},{j}):")
+                    print(piece.legal_moves(self.board))
+    
+

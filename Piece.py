@@ -8,10 +8,7 @@ class Piece:
 
     def move(self, new_position):
         self.position = new_position
-
-    def legal_moves(self, board):
-        pass
-    
+ 
     @staticmethod
     def is_valid_pos(x, y):
         return 0 <= x < 8 and 0 <= y < 8

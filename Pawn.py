@@ -1,4 +1,5 @@
 from Piece import *
+from Square import *
 
 class Pawn(Piece):
     def __init__(self, color, position, image):
@@ -11,10 +12,10 @@ class Pawn(Piece):
         x, y = self.position
         moves = []
 
-        if Piece.is_valid_pos(x + self.direction, y) and board[x + self.direction][y].isempty():
+        if Piece.is_valid_pos(x + self.direction, y) and board[x + self.direction][y].piece is None:
             moves.append((x + self.direction, y))
 
-        if self.first_move and Piece.is_valid_pos(x + 2*self.direction, y) and board[x + 2*self.direction][y].isempty():
+        if self.first_move and Piece.is_valid_pos(x + 2*self.direction, y) and board[x + 2*self.direction][y].piece is None and board[x + self.direction][y].piece is None:
             moves.append((x + 2*self.direction, y))
 
         if Piece.is_valid_pos(x + self.direction, y + 1) and board[x + self.direction][y + 1].has_enemy_piece(self.color):
