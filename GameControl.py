@@ -31,8 +31,10 @@ class GameController:
                     if self.board.active:
                         if event.key == pygame.K_RETURN:
                             print(self.board.text)
-                            new_state = self.game.move_piece(self.board.text) 
-                            self.board.update_board(new_state)  
+                            updated_positions = self.game.move_piece(self.board.text) 
+                            if updated_positions is not None:
+                                for pos, piece in updated_positions.items():
+                                    self.board.update_starting_order(pos, piece)
                             self.board.text = ''
                             if self.game.game_over:
                                 running = False

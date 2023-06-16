@@ -31,3 +31,9 @@ class Square:
 
     def isempty_or_enemy(self, color):
         return self.isempty() or self.has_enemy_piece(color)
+    
+    def get_row(self):
+        return self.x
+    
+    def get_column(self):
+        return self.y

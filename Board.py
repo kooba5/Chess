@@ -101,3 +101,5 @@ class Chessboard:
     
     def update_board(self, new_state):
         self.starting_order = new_state
+    def update_starting_order(self, pos, piece):
+        self.starting_order[pos] = piece

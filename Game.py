@@ -12,6 +12,7 @@ class ChessGame:
     def __init__(self):
         self.turn = 'W'
         self.game_over = False
+        self.last_move = None
         self.normal_pos()
 
     def parse_move(self, text):
@@ -35,16 +36,16 @@ class ChessGame:
                 rook = self.board[0][rook_file].get_piece()
             if king is None or rook is None:
                 print('Invalid castling move.')
-                return              
+                return None             
             if king.moved == True or rook.moved == True:
                 print('Invalid castling move - pieces already moved.')
-                return               
+                return None               
             if king.tag == 'K' and rook.tag != 'R':
                 print('Invalid castling move.')
-                return
+                return None
             if king.tag == 'k' and rook.tag != 'r':
                 print('Invalid castling move.')
-                return
+                return None
             
             step = 1 if king.position[1] < rook.position[1] else -1
             king_final_position = (king.position[0], king.position[1] + 2 * step)
@@ -52,13 +53,13 @@ class ChessGame:
 
             if self.king_in_check(self.turn) or any(self.is_square_under_attack(king.position[0], i, self.turn) for i in range(king.position[1] + step, king_final_position[1] + 1, step)):
                 print('Invalid castling move - would put your king in check.')
-                return
+                return None
             
             self.castle(king, rook)
 
         if len(text) != 5 or text[2] != '-' or not text[0] in 'abcdefgh' or not text[3] in 'abcdefgh' or not text[1].isdigit() or not text[4].isdigit():
             print("Invalid move format. Use 'e2-e4'")
-            return
+            return None
 
         start, end = self.parse_move(text)
 
@@ -67,36 +68,47 @@ class ChessGame:
 
         if start_square.get_piece() is None:
             print("There is no piece on the start square.")
-            return
+            return None
 
         if start_square.get_piece().color != self.turn:
             print("You must move a piece of your own color.")
-            return
+            return None
         
         legal_moves = start_square.get_piece().legal_moves(self.board) 
         if end not in legal_moves: 
             print('Invalid move')
-            return
+            return None
 
-        old_start_piece = start_square.get_piece()
         old_end_piece = end_square.get_piece()
 
         piece = start_square.remove_piece()
         end_square.place_piece(piece)
+        piece.first_move = False
 
         if self.king_in_check(self.turn):
             print('That move would put your king in check.')
             start_square.place_piece(piece)
             end_square.place_piece(old_end_piece)
-            return        
+            return None
+
         piece = end_square.get_piece()
         pawn_tag = 'P' if self.turn == 'W' else 'p'
+        #promotion
         if piece.tag == pawn_tag and piece.can_promote():
             self.promote_pawn(end, piece.color)
+        #en passant
+        if piece.tag == pawn_tag and self.en_passant(start_square, end_square):
+            piece.en_passant = True
+            x, y = end
+            if x == start_square.get_row() and abs(y - end_square.get_column()) == 1:
+                captured_pawn_square = self.board[x][y]
+                captured_pawn_square.remove_piece()
+                return {(x, y): None}
 
+        self.last_move = (start_square, piece, end_square)
         self.turn = 'B' if self.turn == 'W' else 'W'
 
-        self.print_legal_moves()
+        #self.print_legal_moves()
 
         winning_color = 'White' if self.turn == 'B' else 'Black'
         if self.is_checkmate():
@@ -106,7 +118,7 @@ class ChessGame:
             print(f"Stalemate...Ooops")
             self.game_over = True
 
-        return
+        return {(start_square.get_row(), start_square.get_column()): None, (end_square.get_row(), end_square.get_column()): piece.tag}
 
     def get_current_state(self):
         return self.board
@@ -174,6 +186,9 @@ class ChessGame:
         queen = Queen(color, position, queen_image)
         self.board[position[0]][position[1]].place_piece(queen)
 
+    def en_passant(self, start, end):
+        return abs(start.get_row() - end.get_row()) == 2
+    
     def is_checkmate(self):
         if not self.king_in_check(self.turn):
             return False
@@ -254,9 +269,9 @@ class ChessGame:
         self.board[0][6].place_piece(Knight('B', (0,6), pygame.image.load('PNG/B.knight.png')))
         self.board[0][7].place_piece(Rook('B', (0,7), pygame.image.load('PNG/B.rook.png')))
         for i in range(8):
-            self.board[1][i].place_piece(Pawn('B', (1, i), pygame.image.load('PNG/B.pawn.png')))
+            self.board[1][i].place_piece(Pawn('B', (1, i), pygame.image.load('PNG/B.pawn.png'), self))
         for i in range(8):
-            self.board[6][i].place_piece(Pawn('W', (6, i), pygame.image.load('PNG/W.pawn.png')))
+            self.board[6][i].place_piece(Pawn('W', (6, i), pygame.image.load('PNG/W.pawn.png'), self))
         self.board[7][0].place_piece(Rook('W', (7,0), pygame.image.load('PNG/W.rook.png')))
         self.board[7][1].place_piece(Knight('W', (7,1), pygame.image.load('PNG/W.knight.png')))
         self.board[7][2].place_piece(Bishop('W', (7,2), pygame.image.load('PNG/W.bishop.png')))
@@ -270,7 +285,7 @@ class ChessGame:
         for i in range(8):
             for j in range(8):
                 piece = self.board[i][j].get_piece()
-                if piece is not None:
+                if piece is not None and piece.tag in ('p', 'P'):
                     print(f"Legal moves for {piece.color} {type(piece).__name__} at ({i},{j}):")
                     print(piece.legal_moves(self.board))
     
