@@ -25,26 +25,12 @@ class Pawn(Piece):
         r = 3 if self.color == 'W' else 4
         if self.game.last_move is not None:
             last_start, last_piece_moved, last_end = self.game.last_move
-            print(f"Last piece moved: {last_piece_moved.tag}, Position: {last_end}")
             if last_piece_moved.tag in('P', 'p') and not last_piece_moved.first_move:
-                print("Last piece moved was a Pawn on its first move.")
                 if abs(last_end.get_column() - y) == 1:
-                    print("The Pawn moved to a column next to the current piece.")
                     if x == r:
-                        print("The current piece is on the correct row for en passant.")
                         moves.append((last_end.get_row() + self.direction, last_end.get_column()))
-                    else:
-                        print("The current piece is NOT on the correct row for en passant.")
-                else:
-                    print("The Pawn did NOT move to a column next to the current piece.")
-            else:
-                print("Last piece moved was NOT a Pawn on its first move.")
-        else:
-            print("There was no last move.")
         return moves
 
-
-    
     def can_promote(self):
          if self.color == 'W' and self.position[0] == 0:
              return True
@@ -56,5 +42,8 @@ class Pawn(Piece):
         self.position = new_position
         if new_position in self.legal_moves(self.game.board):
             if new_position[0] - self.position[0] == self.direction and abs(new_position[1] - self.position[1]) == 1:
-                self.game.board[self.position[0]][new_position[1]].remove_piece()
+                if self.game.board[new_position[0]][new_position[1]].get_piece() is None:
+                    self.game.board[self.position[0]][new_position[1]].remove_piece()
+                else:
+                    self.game.board[new_position[0]][new_position[1]].remove_piece()
 

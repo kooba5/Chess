@@ -9,11 +9,13 @@ from Piece import *
 from Queen import *
 from Rook import *
 from Square import *
+from Bot import *
 
 class GameController:
     def __init__(self):
         self.game = ChessGame()
         self.board = Chessboard()
+        self.ai = AI('B')
 
     def main_loop(self):
         running = True
@@ -31,13 +33,17 @@ class GameController:
                     if self.board.active:
                         if event.key == pygame.K_RETURN:
                             print(self.board.text)
-                            updated_positions = self.game.move_piece(self.board.text) 
-                            if updated_positions is not None:
-                                for pos, piece in updated_positions.items():
-                                    self.board.update_starting_order(pos, piece)
+                            new_state = self.game.move_piece(self.board.text) 
+                            self.board.update_board(new_state)  
                             self.board.text = ''
                             if self.game.game_over:
                                 running = False
+                            else:
+                                ai_move = self.ai.select_move(self.game)
+                                if ai_move is not None:
+                                    self.game.move_piece(ai_move)
+                                    game_state = self.game.get_current_state() 
+                                    self.board.update_board(game_state) 
                         elif event.key == pygame.K_BACKSPACE:
                             self.board.text = self.board.text[:-1]
                         else:
