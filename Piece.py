@@ -1,8 +1,9 @@
 class Piece:
-    def __init__(self, color, position, image):
+    def __init__(self, color, position, image, value):
         self.color = color
         self.position = position
         self.image = image
+        self.value = value
 
     def move(self, new_position):
         self.position = new_position

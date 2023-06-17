@@ -7,9 +7,11 @@ class AI:
     def select_move(self, game):
         legal_moves = self.find_legal_moves(game)
         if legal_moves:
-            move = random.choice(legal_moves)
-            start, end = move
+            legal_moves.sort(key=self.evaluate_move, reverse=True)
+            best_move = legal_moves[0]
+            start, end = best_move
             move_string = self.format_move_string(start, end)
+            print(f"AI ({self.color}) made move: {move_string}")
             return move_string
         return None
 
@@ -49,3 +51,14 @@ class AI:
                         if self.safe_move(start, end, game):
                             legal_moves.append((start, end))
         return legal_moves
+    
+    def evaluate_move(self, move):
+        start, end = move
+        end_piece = end.get_piece()
+        if end_piece is not None:
+            value = end_piece.value
+        else:
+            value = 0
+        value += random.uniform(0, 0.01)
+        
+        return value

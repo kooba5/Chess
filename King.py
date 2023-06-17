@@ -2,7 +2,7 @@ from Piece import *
 
 class King(Piece):
     def __init__(self, color, position, image):
-        super().__init__(color, position, image)
+        super().__init__(color, position, image, 10000.0)
         self.tag = 'K' if self.color == 'W' else 'k'
         self.moved = False
 

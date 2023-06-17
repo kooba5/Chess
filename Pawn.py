@@ -3,7 +3,7 @@ from Square import *
 
 class Pawn(Piece):
     def __init__(self, color, position, image, game):
-        super().__init__(color, position, image)
+        super().__init__(color, position, image, 1.0)
         self.tag = 'P' if self.color == 'W' else 'p'
         self.first_move = True
         self.direction = -1 if self.color == 'W' else 1 

@@ -244,23 +244,6 @@ class ChessGame:
                             self.board[move[0]][move[1]].place_piece(captured_piece)
         return True
 
-    def setup_predefined_position(self):
-        
-        self.board = [[Square(x, y) for y in range(8)] for x in range(8)]
-        self.board[2][7].place_piece(Rook('B', (0,0), pygame.image.load('PNG/B.rook.png')))
-        self.board[1][7].place_piece(Queen('B', (0,3), pygame.image.load('PNG/B.queen.png')))
-        self.board[2][6].place_piece(King('B', (0,4), pygame.image.load('PNG/B.king.png')))
-        self.board[0][5].place_piece(Bishop('B', (0,5), pygame.image.load('PNG/B.bishop.png')))
-        self.board[0][6].place_piece(Knight('B', (0,6), pygame.image.load('PNG/B.knight.png')))
-        self.board[0][7].place_piece(Rook('B', (0,7), pygame.image.load('PNG/B.rook.png')))
-        self.board[1][4].place_piece(Pawn('B', (0,7), pygame.image.load('PNG/B.pawn.png')))
-        self.board[1][6].place_piece(Pawn('B', (0,7), pygame.image.load('PNG/B.pawn.png')))
-        self.board[2][5].place_piece(Pawn('B', (0,7), pygame.image.load('PNG/B.pawn.png')))
-        self.board[3][7].place_piece(Pawn('B', (0,7), pygame.image.load('PNG/B.pawn.png')))
-
-        self.board[0][2].place_piece(Queen('W', (7,3), pygame.image.load('PNG/W.queen.png')))
-        self.board[4][7].place_piece(Pawn('W', (0,7), pygame.image.load('PNG/W.pawn.png')))
-
     def normal_pos(self):
         self.board = [[Square(x, y) for y in range(8)] for x in range(8)]
         self.board[0][0].place_piece(Rook('B', (0,0), pygame.image.load('PNG/B.rook.png')))

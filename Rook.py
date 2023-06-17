@@ -2,7 +2,7 @@ from Piece import *
 
 class Rook(Piece):
     def __init__(self, color, position, image):
-        super().__init__(color, position, image)
+        super().__init__(color, position, image, 5.0)
         self.tag = 'R' if self.color == 'W' else 'r'
         self.moved = False
 

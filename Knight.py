@@ -4,7 +4,7 @@ from Piece import *
 
 class Knight(Piece):
     def __init__(self, color, position, image):
-        super().__init__(color, position, image)
+        super().__init__(color, position, image, 3.000)
         self.tag = 'N' if self.color == 'W' else 'n'
         
     def legal_moves(self, board):
