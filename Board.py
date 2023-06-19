@@ -7,7 +7,7 @@ class Chessboard:
         pygame.init()
         self.font = pygame.freetype.Font(None, 24)
 
-        self.window_size = (800, 800)
+        self.window_size = (750, 750)
         self.screen = pygame.display.set_mode((1000, self.window_size[1])) 
         pygame.display.set_caption("Chessboard")
 
@@ -72,34 +72,7 @@ class Chessboard:
         txt_surface, _ = self.font.render(self.text, self.text_color)
         self.screen.blit(txt_surface, (self.input_box.x+5, self.input_box.y+5))
         pygame.draw.rect(self.screen, self.color, self.input_box, 2)
-
-
-    def event_handling(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return False
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.input_box.collidepoint(event.pos):
-                    self.active = not self.active
-                else:
-                    self.active = False
-                self.color = self.color_active if self.active else self.color_inactive
-            if event.type == pygame.KEYDOWN:
-                if self.active:
-                    if event.key == pygame.K_RETURN:
-                        print(self.text)
-                        move_text = self.text
-                        start, end = self.game.parse_move(move_text)
-                        self.game.move_piece(start, end)
-                        self.text = ''
-                    elif event.key == pygame.K_BACKSPACE:
-                        self.text = self.text[:-1]
-                    else:
-                        self.text += event.unicode
-        return True
     
     def update_board(self, new_state):
         self.starting_order = new_state
-    def update_starting_order(self, pos, piece):
-        self.starting_order[pos] = piece
+

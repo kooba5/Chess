@@ -13,7 +13,7 @@ class ChessGame:
         self.turn = 'W'
         self.game_over = False
         self.last_move = None
-        self.normal_pos()
+        self.starting_pos()
 
     def parse_move(self, text):
         start_col = ord(text[0]) - ord('a')
@@ -24,7 +24,7 @@ class ChessGame:
         return ((start_row, start_col), (end_row, end_col))
     
     def move_piece(self, text):
-        
+        #castling
         if text == 'O-O' or text == 'O-O-O':
             if self.turn == 'W':
                 king = self.board[7][4].get_piece()
@@ -79,11 +79,12 @@ class ChessGame:
             print('Invalid move')
             return 
         piece = start_square.get_piece()
-        if piece.tag in ('P', 'p') and abs(start_square.get_row() - end_square.get_row()) == 1 and start_square.get_column() != end_square.get_column() and end_square.get_piece() is None:
-            self.board[start_square.get_row()][end_square.get_column()].remove_piece()
+        #en passant
         if piece.tag in ('P', 'p') and abs(start_square.get_row() - end_square.get_row()) == 2:
             if self.en_passant(start_square, end_square):
                 piece.en_passant = True
+        if piece.tag in ('P', 'p') and abs(start_square.get_row() - end_square.get_row()) == 1 and start_square.get_column() != end_square.get_column() and end_square.get_piece() is None:
+            self.board[start_square.get_row()][end_square.get_column()].remove_piece()
 
         old_end_piece = end_square.get_piece()
         piece = start_square.remove_piece()
@@ -97,14 +98,12 @@ class ChessGame:
             return 
         self.last_move = (start_square, piece, end_square)
 
-
+        #promotion
         piece = end_square.get_piece()
         if piece.tag in ('P', 'p') and piece.can_promote():
             self.promote_pawn(end, piece.color)
 
         self.turn = 'B' if self.turn == 'W' else 'W'
-
-        #self.print_legal_moves()
 
         winning_color = 'White' if self.turn == 'B' else 'Black'
         if self.is_checkmate():
@@ -244,7 +243,7 @@ class ChessGame:
                             self.board[move[0]][move[1]].place_piece(captured_piece)
         return True
 
-    def normal_pos(self):
+    def starting_pos(self):
         self.board = [[Square(x, y) for y in range(8)] for x in range(8)]
         self.board[0][0].place_piece(Rook('B', (0,0), pygame.image.load('PNG/B.rook.png')))
         self.board[0][1].place_piece(Knight('B', (0,1), pygame.image.load('PNG/B.knight.png')))
@@ -267,12 +266,5 @@ class ChessGame:
         self.board[7][6].place_piece(Knight('W', (7,6), pygame.image.load('PNG/W.knight.png')))
         self.board[7][7].place_piece(Rook('W', (7,7), pygame.image.load('PNG/W.rook.png')))
 
-    def print_legal_moves(self):
-        for i in range(8):
-            for j in range(8):
-                piece = self.board[i][j].get_piece()
-                if piece is not None and piece.tag in ('p', 'P'):
-                    print(f"Legal moves for {piece.color} {type(piece).__name__} at ({i},{j}):")
-                    print(piece.legal_moves(self.board))
     
 
