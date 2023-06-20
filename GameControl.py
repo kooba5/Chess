@@ -2,12 +2,12 @@ import pygame
 
 from Game import *
 from Board import *
-from Bishop import *
-from King import *
-from Pawn import *
+from Pieces.Bishop import *
+from Pieces.King import *
+from Pieces.Pawn import *
 from Piece import *
-from Queen import *
-from Rook import *
+from Pieces.Queen import *
+from Pieces.Rook import *
 from Square import *
 from Bot import *
 

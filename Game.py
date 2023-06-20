@@ -1,11 +1,11 @@
 import pygame
 from Square import *
-from Pawn import *
-from Rook import *
-from Knight import *
-from Bishop import *
-from Queen import *
-from King import *
+from Pieces.Pawn import *
+from Pieces.Rook import *
+from Pieces.Knight import *
+from Pieces.Bishop import *
+from Pieces.Queen import *
+from Pieces.King import *
 from Board import *
 
 class ChessGame:
