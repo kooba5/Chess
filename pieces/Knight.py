@@ -1,6 +1,4 @@
-from Piece import *
-
-from Piece import *
+from .Piece import *
 
 class Knight(Piece):
     def __init__(self, color, position, image):

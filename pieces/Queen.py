@@ -1,4 +1,4 @@
-from Piece import *
+from .Piece import *
 
 class Queen(Piece):
     def __init__(self, color, position, image):
