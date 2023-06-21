@@ -2,12 +2,12 @@ import pygame
 
 from Game import *
 from Board import *
-from Pieces.Bishop import *
-from Pieces.King import *
-from Pieces.Pawn import *
-from Piece import *
-from Pieces.Queen import *
-from Pieces.Rook import *
+from pieces.Bishop import *
+from pieces.King import *
+from pieces.Pawn import *
+from pieces.Piece import *
+from pieces.Queen import *
+from pieces.Rook import *
 from Square import *
 from Bot import *
 
@@ -38,12 +38,12 @@ class GameController:
                             self.board.text = ''
                             if self.game.game_over:
                                 running = False
-                            else:
-                                ai_move = self.ai.select_move(self.game)
-                                if ai_move is not None:
-                                    self.game.move_piece(ai_move)
-                                    game_state = self.game.get_current_state() 
-                                    self.board.update_board(game_state) 
+                            #else:
+                                # ai_move = self.ai.select_move(self.game)
+                                # if ai_move is not None:
+                                #     self.game.move_piece(ai_move)
+                                #     game_state = self.game.get_current_state() 
+                                #     self.board.update_board(game_state) 
                         elif event.key == pygame.K_BACKSPACE:
                             self.board.text = self.board.text[:-1]
                         else:

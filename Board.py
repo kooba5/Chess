@@ -1,5 +1,6 @@
 import pygame
 import pygame.freetype 
+from Pawn import *
 
 class Chessboard:
     def __init__(self):
